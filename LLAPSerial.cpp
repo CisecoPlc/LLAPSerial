@@ -81,6 +81,8 @@ void LLAPSerial::SerialEvent()
 		cMessage[12]=0;
 		processMessage();
 	}
+     else
+        Serial.read();	// throw away the character
   }
 }
 
