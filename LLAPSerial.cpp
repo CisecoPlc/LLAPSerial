@@ -127,7 +127,7 @@ void LLAPSerial::sendInt(String sToSend, int value)
 void LLAPSerial::sendIntWithDP(String sToSend, int value, byte decimalPlaces)
 {
 	char cValue[8];		// long enough for -3276.7 and the trailing zero
-	byte cValuePtr;
+	byte cValuePtr=0;
 	itoa(value, cValue,10);
 	char* cp = &cValue[strlen(cValue)];
 	*(cp+1) = 0;	// new terminator
