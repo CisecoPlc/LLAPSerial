@@ -15,7 +15,7 @@
 #include <LLAPSerial.h>
 #include <DHT.h>
 
-#define DEVICEID "DH"	// this is the LLAP device ID
+#define DEVICEID "DI"	// this is the LLAP device ID
 
 #define DHTPIN 2     // what I/O the DHT-22 data pin is connected to
 #define DHTTYPE DHT22   // DHT 22  (AM2302)
@@ -29,25 +29,24 @@ DHT dht(DHTPIN, DHTTYPE);
 
 void setup() {
 	Serial.begin(115200);
-
 	pinMode(8,OUTPUT);		// switch on the radio
 	digitalWrite(8,HIGH);
+	pinMode(4,OUTPUT);		// switch on the radio
+	digitalWrite(4,LOW);	// ensure the radio is not sleeping
 	delay(1000);				// allow the radio to startup
-
 	LLAP.init(DEVICEID);
 
 	dht.begin();
 
-	LLAP.sendMessage("STARTED");
-	//tst code
-	Serial.print("ABCDEFGHIJKLMNOPQRSTUVWX");
-	Serial.flush();
+	LLAP.sendMessage(F("STARTED"));
+
+	while(1);
 }
 
 void loop() {
 	// print the string when a newline arrives:
 	if (LLAP.bMsgReceived) {
-		Serial.print("message is:");
+		Serial.print(F("message is:"));
 		Serial.println(LLAP.sMessage); 
 		LLAP.bMsgReceived = false;	// if we do not clear the message flag then message processing will be blocked
 	}
@@ -62,7 +61,7 @@ void loop() {
 
 		// check if returns are valid, if they are NaN (not a number) then something went wrong!
 		if (isnan(t) || isnan(h)) {
-			LLAP.sendMessage("ERROR");
+			LLAP.sendMessage(F("ERROR"));
 		} else {
 			LLAP.sendIntWithDP("HUM",h,1);
 			//delay(100);

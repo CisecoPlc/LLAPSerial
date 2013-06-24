@@ -67,23 +67,23 @@ void LLAPSerial::SerialEvent()
 {
 	if (bMsgReceived) return; //get out if previous message not yet processed
 	if (Serial.available() >= 12) {
-    // get the new byte:
-    char inChar = (char)Serial.peek(); 
-    if (inChar == 'a') {
-		for (byte i = 0; i<12; i++) {
-			inChar = (char)Serial.read();
-			cMessage[i] = inChar;
-			if (i < 11 && Serial.peek() == 'a') {
-				// out of synch so abort and pick it up next time round
-				return;
-			}
-		}
-		cMessage[12]=0;
-		processMessage();
-	}
-     else
-        Serial.read();	// throw away the character
-  }
+        // get the new byte:
+        char inChar = (char)Serial.peek();
+        if (inChar == 'a') {
+            for (byte i = 0; i<12; i++) {
+                inChar = (char)Serial.read();
+                cMessage[i] = inChar;
+                if (i < 11 && Serial.peek() == 'a') {
+                    // out of synch so abort and pick it up next time round
+                    return;
+                }
+            }
+            cMessage[12]=0;
+            processMessage();
+        }
+        else
+            Serial.read();	// throw away the character
+    }
 }
 
 void LLAPSerial::sendMessage(String sToSend)
@@ -96,6 +96,63 @@ void LLAPSerial::sendMessage(String sToSend)
 			cMessage[i+3] = sToSend.charAt(i);
 		else
 			cMessage[i+3] = '-';
+    }
+    
+    Serial.print(cMessage);
+    Serial.flush();
+}
+
+void LLAPSerial::sendMessage(char* sToSend)
+{
+	sendMessage(sToSend,NULL);
+}
+
+void LLAPSerial::sendMessage(char* sToSend, char* valueToSend)
+{
+    cMessage[0] = 'a';
+    cMessage[1] = deviceId[0];
+    cMessage[2] = deviceId[1];
+    for (byte i = 0; i<9; i++) {
+		if (i < strlen(sToSend))
+			cMessage[i+3] = sToSend[i];
+		else if (i < strlen(sToSend) + strlen(valueToSend))
+			cMessage[i+3] = valueToSend[i - strlen(sToSend)];
+		else
+			cMessage[i+3] = '-';
+    }
+    
+    Serial.print(cMessage);
+    Serial.flush();
+}
+
+void LLAPSerial::sendMessage(const __FlashStringHelper *ifsh)
+{
+	sendMessage(ifsh,NULL);
+}
+
+void LLAPSerial::sendMessage(const __FlashStringHelper *ifsh, char* valueToSend)
+{
+	const char PROGMEM *p = (const char PROGMEM *)ifsh;
+	byte eos = 0;
+    cMessage[0] = 'a';
+    cMessage[1] = deviceId[0];
+    cMessage[2] = deviceId[1];
+    for (byte i = 0; i<9; i++) {
+		if (!eos)
+		{
+			cMessage[i+3] = pgm_read_byte(p++);
+			if (!cMessage[i+3]) // end of string
+			{
+				eos = i-3;
+			}
+		}
+		if (eos)
+		{
+			if (i < eos + strlen(valueToSend))
+				cMessage[i+3] = valueToSend[i - eos];
+			else
+				cMessage[i+3] = '-';
+		}
     }
     
     Serial.print(cMessage);
@@ -143,7 +200,7 @@ void LLAPSerial::sendIntWithDP(String sToSend, int value, byte decimalPlaces)
     for (byte i = 0; i<9; i++) {
 		if (i < sToSend.length())
 			cMessage[i+3] = sToSend.charAt(i);
-		else if (cValuePtr < 7 && cValue[cValuePtr] !=0)
+		else if (cValuePtr < 8 && cValue[cValuePtr] !=0)
 			cMessage[i+3] = cValue[cValuePtr++];
 		else
 			cMessage[i+3] = '-';
@@ -249,6 +306,51 @@ byte LLAPSerial::sleepForaWhile (word msecs) {
     timer0_millis += msecs - msleft;
 #endif
     return ok; // true if we lost approx the time planned
+}
+
+void pin2_isr()
+{
+  sleep_disable();
+  detachInterrupt(0);
+}
+
+void pin3_isr()
+{
+  sleep_disable();
+  detachInterrupt(1);
+}
+
+void LLAPSerial::sleep(byte pinToWakeOn)	// full sleep wake on interrupt - pin is 2 or 3
+{
+  byte adcsraSave = ADCSRA;
+  ADCSRA &= ~ bit(ADEN); // disable the ADC
+  // switch off analog comparator - not in Jeelabs' code
+  ACSR = ACSR & 0x7F; // note if using it then we need to switch this back on when we wake.
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  sleep_enable();
+  if (pinToWakeOn == 2)
+  {
+	  pinMode(2,INPUT);
+  digitalWrite(2,HIGH);		// enable pullup
+	attachInterrupt(0, pin2_isr, FALLING);
+  }
+  else
+  {
+	  pinMode(3,INPUT);
+  digitalWrite(3,HIGH);		// enable pullup
+	attachInterrupt(1, pin3_isr, FALLING);
+  }
+  cli();
+  // sleep_bod_disable(); // can't use this - not in my avr-libc version!
+#ifdef BODSE
+    MCUCR = MCUCR | bit(BODSE) | bit(BODS); // timed sequence
+    MCUCR = (MCUCR & ~ bit(BODSE)) | bit(BODS);
+#endif
+  sei();
+  sleep_cpu();	// and wait until we are woken
+  sleep_disable();
+  // re-enable what we disabled
+  ADCSRA = adcsraSave;
 }
 
 // End of power-saving code.

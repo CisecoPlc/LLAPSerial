@@ -22,10 +22,15 @@ class LLAPSerial
 	boolean bMsgReceived;
 	void SerialEvent();
     void sendMessage(String sToSend);
+	void sendMessage(char* sToSend);
+	void sendMessage(char* sToSend, char* valueToSend);
+	void sendMessage(const __FlashStringHelper *ifsh);
+	void sendMessage(const __FlashStringHelper *ifsh, char* valueToSend);
 	void sendInt(String sToSend, int value);
 	void sendIntWithDP(String sToSend, int value, byte decimalPlaces);
     void setDeviceId(char* cId);
-	byte sleepForaWhile (word msecs);
+	byte sleepForaWhile (word msecs);	// timed sleep using the watchdog
+	void sleep(byte pinToWakeOn);		// full sleep woken by pin interrupt
 };
 
 extern LLAPSerial LLAP;
