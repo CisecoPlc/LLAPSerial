@@ -118,7 +118,7 @@ void loop() // repeatedly called
 			else if (msg.startsWith("PWM"))
 			{
               byte val = ((msg.charAt(3) - '0') * 10 + msg.charAt(4) - '0') * 10 + msg.charAt(5) - '0';
-              if (val >=0 && val <= 9999)
+              if (val >=0 && val <= 255)
               {
                 if (validPin(pwm,ioNumber))
                   analogWrite(ioNumber,val);
