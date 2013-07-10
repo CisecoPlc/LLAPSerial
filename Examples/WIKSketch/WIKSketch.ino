@@ -37,8 +37,8 @@ uint8_t pwm[] = {6,9,11,254};
 Servo myservo;  // create servo object to control a servo 
 
 
-String msg;		// storage for incoming message
-String reply;	// storage for reply
+String msg;        // storage for incoming message
+String reply;    // storage for reply
 
 void setup() // always called at the start to setup I/Os etc
 {
@@ -59,164 +59,164 @@ void setup() // always called at the start to setup I/Os etc
 
 void loop() // repeatedly called
 {
-	if (LLAP.bMsgReceived) // got a message?
-	{
-		msg = LLAP.sMessage;
-		LLAP.bMsgReceived = false;
-		reply = msg;
-		if (msg.compareTo("HELLO----") == 0)
-		{
-			;	// just echo the message back
-		}
-		else if (msg.startsWith("SERVO"))
-		{
-			msg = msg.substring(5);
-			int value = msg.toInt();
-			if (value >=0 && value <= 180)
-				myservo.write(value);
-			else
-				reply = "TOOLARGE";
-		}
-		else if (msg.startsWith("COUNT"))
-		{
-			msg = msg.substring(5);
-			if (msg.startsWith("-"))
-			{	// read the value
-				reply = reply.substring(0,5) + countValue;
-			}
-			else
-			{	// set the value
-				int value = msg.toInt();
-				if (value >=0 && value <= 9999)
-					countValue = value;
-				else
-					reply = "TOOLARGE";
-			}
-		}
-		else	// it is an action message
-		{
-			byte typeOfIO;
-			byte ioNumber;
-			typeOfIO = msg.charAt(0);
-			ioNumber = (msg.charAt(1) - '0') * 10 + msg.charAt(2) - '0';
-			msg = msg.substring(3);
-			if (msg.compareTo("HIGH--") == 0)
-			{
-				if (validPin(outputs,ioNumber))
-					digitalWrite(ioNumber,HIGH);
-				else
-					reply = "NOTOUTPUT";
-			}
-			else if (msg.compareTo("LOW---") == 0)
-			{
-				if (validPin(outputs,ioNumber))
-					digitalWrite(ioNumber,LOW);
-				else
-					reply = "NOTOUTPUT";
-
-			}
-			else if (msg.startsWith("PWM"))
-			{
-              byte val = ((msg.charAt(3) - '0') * 10 + msg.charAt(4) - '0') * 10 + msg.charAt(5) - '0';
-              if (val >=0 && val <= 255)
-              {
-                if (validPin(pwm,ioNumber))
-                  analogWrite(ioNumber,val);
-				else
-                  reply = "NOTPWM";
-              }
-              else
+    if (LLAP.bMsgReceived) // got a message?
+    {
+        msg = LLAP.sMessage;
+        LLAP.bMsgReceived = false;
+        reply = msg;
+        if (msg.compareTo("HELLO----") == 0)
+        {
+            ;    // just echo the message back
+        }
+        else if (msg.startsWith("SERVO"))
+        {
+            msg = msg.substring(5);
+            int value = msg.toInt();
+            if (value >=0 && value <= 180)
+                myservo.write(value);
+            else
                 reply = "TOOLARGE";
+        }
+        else if (msg.startsWith("COUNT"))
+        {
+            msg = msg.substring(5);
+            if (msg.startsWith("-"))
+            {    // read the value
+                reply = reply.substring(0,5) + countValue;
+            }
+            else
+            {    // set the value
+                int value = msg.toInt();
+                if (value >=0 && value <= 9999)
+                    countValue = value;
+                else
+                    reply = "TOOLARGE";
+            }
+        }
+        else    // it is an action message
+        {
+            byte typeOfIO;
+            byte ioNumber;
+            typeOfIO = msg.charAt(0);
+            ioNumber = (msg.charAt(1) - '0') * 10 + msg.charAt(2) - '0';
+            msg = msg.substring(3);
+            if (msg.compareTo("HIGH--") == 0)
+            {
+                if (validPin(outputs,ioNumber))
+                    digitalWrite(ioNumber,HIGH);
+                else
+                    reply = "NOTOUTPUT";
+            }
+            else if (msg.compareTo("LOW---") == 0)
+            {
+                if (validPin(outputs,ioNumber))
+                    digitalWrite(ioNumber,LOW);
+                else
+                    reply = "NOTOUTPUT";
+
+            }
+            else if (msg.startsWith("PWM"))
+            {
+                byte val = ((msg.charAt(3) - '0') * 10 + msg.charAt(4) - '0') * 10 + msg.charAt(5) - '0';
+                if (val >=0 && val <= 255)
+                {
+                    if (validPin(pwm,ioNumber))
+                      analogWrite(ioNumber,val);
+                    else
+                      reply = "NOTPWM";
+                }
+                else
+                    reply = "TOOLARGE";
               
-			}
-			else if (msg.compareTo("READ--") == 0)
-			{
-				reply = reply.substring(0,3);
-				if (typeOfIO == 'A')
-				{
-					if (validPin(analogs,ioNumber))
-					{
-						int val = analogRead(ioNumber);
-						reply = reply + "+" + val;
-					}
-					else
-						reply = "NOTINPUT";
-				}
-				else
-				{
-					if (validPin(inputs,ioNumber))
-					{
-						byte val = digitalRead(ioNumber);
-						if (val)
-						{
-							reply = reply + "HIGH";
-						}
-						else
-						{
-							reply = reply + "LOW";
-						}
-					}
-					else
-						reply = "NOTINPUT";
-				}
-			}
-			else
-				reply = "ERROR";
-		}
-		LLAP.sendMessage(reply);
-	}
-	else
-	{
-		checkForInterruptPin(INT1PIN, &int1Value, &int1Time);
-		checkForInterruptPin(INT2PIN, &int2Value, &int2Time);
-		// and increment counter if needed
-		if (millis() - countTime > DEBOUNCETIME)
-		{
-			if (countState && digitalRead(COUNTPIN) == 0)
-			{
-				countState = 0;
-				countValue++;
-				if (countValue > 9999) countValue = 0;
-			}
-			else if (countState == 0 && digitalRead(COUNTPIN))
-			{
-				countState = 1;
-			}
-			countTime = millis();
-		}
-	}
+            }
+            else if (msg.compareTo("READ--") == 0)
+            {
+                reply = reply.substring(0,3);
+                if (typeOfIO == 'A')
+                {
+                    if (validPin(analogs,ioNumber))
+                    {
+                        int val = analogRead(ioNumber);
+                        reply = reply + "+" + val;
+                    }
+                    else
+                        reply = "NOTINPUT";
+                }
+                else
+                {
+                    if (validPin(inputs,ioNumber))
+                    {
+                        byte val = digitalRead(ioNumber);
+                        if (val)
+                        {
+                            reply = reply + "HIGH";
+                        }
+                        else
+                        {
+                            reply = reply + "LOW";
+                        }
+                    }
+                    else
+                        reply = "NOTINPUT";
+                }
+            }
+            else
+                reply = "ERROR";
+        }
+        LLAP.sendMessage(reply);
+    }
+    else
+    {
+        checkForInterruptPin(INT1PIN, &int1Value, &int1Time);
+        checkForInterruptPin(INT2PIN, &int2Value, &int2Time);
+        // and increment counter if needed
+        if (millis() - countTime > DEBOUNCETIME)
+        {
+            if (countState && digitalRead(COUNTPIN) == 0)
+            {
+                countState = 0;
+                countValue++;
+                if (countValue > 9999) countValue = 0;
+            }
+            else if (countState == 0 && digitalRead(COUNTPIN))
+            {
+                countState = 1;
+            }
+            countTime = millis();
+        }
+    }
 }
 
 boolean validPin(byte* pins, byte pinNumber)
 {
-	byte i = 0;
-	while (pins[i] != 254)  // end of array check numebr
-	{
-		if (pins[i++] == pinNumber)
-			return true;
-	}
-	return false;
+    byte i = 0;
+    while (pins[i] != 254)  // end of array check numebr
+    {
+        if (pins[i++] == pinNumber)
+            return true;
+    }
+    return false;
 }
 
 void checkForInterruptPin(uint8_t intpin, uint8_t* pinvalue, uint32_t* pinTime)
 {
-	// check interrupts
-	// crude debounce
-	// once changed don't look for another change until DEBOUNCETIME has elapsed
-	if (digitalRead(intpin) != *pinvalue && millis() - *pinTime > DEBOUNCETIME)
-	{	
-		*pinvalue = digitalRead(intpin);
-		*pinTime = millis();
-		reply = "D0";
-		reply += intpin;
-		if (*pinvalue)
-		{
-			reply = reply + "HIGH";
-		}
-		else
-		{
-			reply = reply + "LOW";
-		}
-		LLAP.sendMessage(reply);
-	}
+    // check interrupts
+    // crude debounce
+    // once changed don't look for another change until DEBOUNCETIME has elapsed
+    if (digitalRead(intpin) != *pinvalue && millis() - *pinTime > DEBOUNCETIME)
+    {    
+        *pinvalue = digitalRead(intpin);
+        *pinTime = millis();
+        reply = "D0";
+        reply += intpin;
+        if (*pinvalue)
+        {
+            reply = reply + "HIGH";
+        }
+        else
+        {
+            reply = reply + "LOW";
+        }
+        LLAP.sendMessage(reply);
+    }
 }
