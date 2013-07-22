@@ -47,8 +47,8 @@ String reply;    // storage for reply
 void setup() // always called at the start to setup I/Os etc
 {
 
-  //pinMode(8, OUTPUT);
-  //digitalWrite(8, HIGH); // turn on the radio
+  pinMode(8, OUTPUT);
+  digitalWrite(8, HIGH); // turn on the radio
   Serial.begin(115200); // start the serial port at 9600 baud
 
   byte i=0;
