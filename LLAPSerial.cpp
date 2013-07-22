@@ -54,9 +54,12 @@ void LLAPSerial::processMessage(){
 	if (0 == strncmp_P(&cMessage[3],PSTR("HELLO----"),9)) {
 		Serial.print(cMessage);	// echo the message
 	} else if (0 == strncmp_P(&cMessage[3],PSTR("CHDEVID"),7)) {
+	  if (strchr_P(PSTR("-#@?\\*ABCDEFGHIJKLMNOPQRSTUVWXYZ"), cMessage[10]) != 0 && strchr_P(PSTR("-#@?\\*ABCDEFGHIJKLMNOPQRSTUVWXYZ"), cMessage[11]) != 0)
+	  {
 		deviceId[0] = cMessage[10];
 		deviceId[1] = cMessage[11];
 		Serial.print(cMessage);	// echo the message
+	  }
 	} else {
 		sMessage = String(&cMessage[3]); // let the main program deal with it
 		bMsgReceived = true;

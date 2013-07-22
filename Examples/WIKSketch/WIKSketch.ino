@@ -5,11 +5,15 @@
 // Ciseco Ltd. Copywright 2013
 //
 
+#include <EEPROM.h>
 #include <LLAPSerial.h>
 #include <Servo.h>
 
 
-#define DEVICEID "--"
+#define DEVICEID1 '-'
+#define DEVICEID2 '-'
+#define EEPROM_DEVICEID1 0
+#define EEPROM_DEVICEID2 1
 
 // inputs
 uint8_t inputs[] = {2,3,4,7,10,12,254};
@@ -42,8 +46,9 @@ String reply;    // storage for reply
 
 void setup() // always called at the start to setup I/Os etc
 {
-  pinMode(8, OUTPUT);
-  digitalWrite(8, HIGH); // trun on the radio
+
+  //pinMode(8, OUTPUT);
+  //digitalWrite(8, HIGH); // turn on the radio
   Serial.begin(115200); // start the serial port at 9600 baud
 
   byte i=0;
@@ -52,7 +57,15 @@ void setup() // always called at the start to setup I/Os etc
   while (outputs[i]) pinMode(outputs[i++],OUTPUT);
   myservo.attach(SERVOPIN);  // attaches the servo pin to the servo object 
 
-  LLAP.init(DEVICEID);
+  String permittedChars = "-#@?\\*ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  char deviceID[2] = {EEPROM.read(EEPROM_DEVICEID1), EEPROM.read(EEPROM_DEVICEID2)};
+  if (permittedChars.indexOf(deviceID[0]) == -1 || permittedChars.indexOf(deviceID[1]) == -1)
+  {
+	  deviceID[0] = DEVICEID1;
+	  deviceID[1] = DEVICEID2;
+  }
+
+  LLAP.init(deviceID);
 
   LLAP.sendMessage("STARTED");
 }
@@ -67,6 +80,11 @@ void loop() // repeatedly called
         if (msg.compareTo("HELLO----") == 0)
         {
             ;    // just echo the message back
+        }
+        else if (msg.compareTo("SAVE-----") == 0)
+        {
+            EEPROM.write(EEPROM_DEVICEID1, LLAP.deviceId[0]);    // save the device ID
+            EEPROM.write(EEPROM_DEVICEID2, LLAP.deviceId[1]);    // save the device ID
         }
         else if (msg.startsWith("SERVO"))
         {
