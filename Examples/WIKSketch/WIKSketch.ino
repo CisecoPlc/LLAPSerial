@@ -33,11 +33,11 @@ uint32_t int1Time;
 uint8_t int2Value =1;
 uint32_t int2Time;
 // outputs
-uint8_t outputs[] = {6,9,11,13,254};
+uint8_t outputs[] = {6,5,11,13,254};
 // pwm
-uint8_t pwm[] = {6,9,11,254};
+uint8_t pwm[] = {6,5,11,254};
 // servo
-#define SERVOPIN 5
+#define SERVOPIN 9
 Servo myservo;  // create servo object to control a servo 
 
 
