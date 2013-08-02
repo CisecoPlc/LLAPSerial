@@ -2,7 +2,7 @@
 // LLAP - Lightweight Local Automation Protocol
 //
 // Wireless Inventors Kits
-// Ciseco Ltd. Copywright 2013
+// Ciseco Ltd. Copyright 2013
 //
 
 #include <EEPROM.h>
@@ -49,7 +49,7 @@ void setup() // always called at the start to setup I/Os etc
 
   pinMode(8, OUTPUT);
   digitalWrite(8, HIGH); // turn on the radio
-  Serial.begin(115200); // start the serial port at 9600 baud
+  Serial.begin(115200); // start the serial port at 115200 baud
 
   byte i=0;
   while (inputs[i]) {pinMode(inputs[i],INPUT); digitalWrite(inputs[i++],HIGH);}
