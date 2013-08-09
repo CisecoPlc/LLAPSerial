@@ -5,6 +5,11 @@
 // Ciseco Ltd. Copyright 2013
 //
 
+// Changes
+//  1.0  Add FVER command
+//
+#define VERSION "1.0"
+
 #include <EEPROM.h>
 #include <LLAPSerial.h>
 #include <Servo.h>
@@ -80,6 +85,10 @@ void loop() // repeatedly called
         if (msg.compareTo("HELLO----") == 0)
         {
             ;    // just echo the message back
+        }
+        else if (msg.compareTo("FVER-----") == 0)
+        {
+          reply = reply.substring(0,4) + VERSION;
         }
         else if (msg.compareTo("SAVE-----") == 0)
         {
