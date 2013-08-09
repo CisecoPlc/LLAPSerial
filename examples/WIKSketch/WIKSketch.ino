@@ -14,7 +14,7 @@
 #include <LLAPSerial.h>
 #include <Servo.h>
 
-
+#define DEVICETYPE "RASWIK"
 #define DEVICEID1 '-'
 #define DEVICEID2 '-'
 #define EEPROM_DEVICEID1 0
@@ -89,6 +89,10 @@ void loop() // repeatedly called
         else if (msg.compareTo("FVER-----") == 0)
         {
           reply = reply.substring(0,4) + VERSION;
+        }
+        else if (msg.compareTo("DEVTYPE--") == 0)
+        {
+          reply = DEVICETYPE;
         }
         else if (msg.compareTo("SAVE-----") == 0)
         {
