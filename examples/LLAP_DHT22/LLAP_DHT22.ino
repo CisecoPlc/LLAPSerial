@@ -15,7 +15,7 @@
 #include <LLAPSerial.h>
 #include <DHT.h>
 
-#define DEVICEID "DI"	// this is the LLAP device ID
+#define DEVICEID "DH"	// this is the LLAP device ID
 
 #define DHTPIN 2     // what I/O the DHT-22 data pin is connected to
 #define DHTTYPE DHT22   // DHT 22  (AM2302)
@@ -40,26 +40,24 @@ void setup() {
 
 	LLAP.sendMessage(F("STARTED"));
 
-	while(1);
 }
 
 void loop() {
 	// print the string when a newline arrives:
 	if (LLAP.bMsgReceived) {
-		Serial.print(F("message is:"));
+		Serial.print(F("msg:"));
 		Serial.println(LLAP.sMessage); 
 		LLAP.bMsgReceived = false;	// if we do not clear the message flag then message processing will be blocked
 	}
 
-	// every 10 seconds
+	// every 30 seconds
 	static unsigned long lastTime = millis();
 	if (millis() - lastTime >= 30000)
 	{
-		lastTime = millis();
+  		lastTime = millis();
 		int h = dht.readHumidity() * 10;
 		int t = dht.readTemperature() * 10;
-
-		// check if returns are valid, if they are NaN (not a number) then something went wrong!
+ 		// check if returns are valid, if they are NaN (not a number) then something went wrong!
 		if (isnan(t) || isnan(h)) {
 			LLAP.sendMessage(F("ERROR"));
 		} else {
@@ -67,6 +65,5 @@ void loop() {
 			//delay(100);
 			LLAP.sendIntWithDP("TMP",t,1);
 		}
-		//Serial.println();
 	}
 }

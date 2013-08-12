@@ -44,6 +44,7 @@ void LLAPSerial::init(char* dID)
 	init();
 	bMsgReceived = false;
 	setDeviceId(dID);
+	cMessage[12]=0;		// ensure terminated
 }
 
 void LLAPSerial::processMessage(){
@@ -157,7 +158,6 @@ void LLAPSerial::sendMessage(const __FlashStringHelper *ifsh, char* valueToSend)
 				cMessage[i+3] = '-';
 		}
     }
-    
     Serial.print(cMessage);
     Serial.flush();
 }
