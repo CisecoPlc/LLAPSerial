@@ -323,7 +323,7 @@ void pin3_isr()
   detachInterrupt(1);
 }
 
-void LLAPSerial::sleep(byte pinToWakeOn)	// full sleep wake on interrupt - pin is 2 or 3
+void LLAPSerial::sleep(byte pinToWakeOn, byte direction, byte bPullup)	// full sleep wake on interrupt - pin is 2 or 3
 {
   byte adcsraSave = ADCSRA;
   ADCSRA &= ~ bit(ADEN); // disable the ADC
@@ -333,15 +333,15 @@ void LLAPSerial::sleep(byte pinToWakeOn)	// full sleep wake on interrupt - pin i
   sleep_enable();
   if (pinToWakeOn == 2)
   {
-	  pinMode(2,INPUT);
-  digitalWrite(2,HIGH);		// enable pullup
-	attachInterrupt(0, pin2_isr, FALLING);
+	pinMode(2,INPUT);
+    if (bPullup) digitalWrite(2,HIGH);		// enable pullup
+	attachInterrupt(0, pin2_isr, direction);
   }
   else
   {
-	  pinMode(3,INPUT);
-  digitalWrite(3,HIGH);		// enable pullup
-	attachInterrupt(1, pin3_isr, FALLING);
+	pinMode(3,INPUT);
+    if (bPullup) digitalWrite(3,HIGH);		// enable pullup
+	attachInterrupt(1, pin3_isr, direction);
   }
   cli();
   // sleep_bod_disable(); // can't use this - not in my avr-libc version!

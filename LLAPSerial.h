@@ -30,7 +30,7 @@ class LLAPSerial
 	void sendIntWithDP(String sToSend, int value, byte decimalPlaces);
     void setDeviceId(char* cId);
 	byte sleepForaWhile (word msecs);	// timed sleep using the watchdog
-	void sleep(byte pinToWakeOn);		// full sleep woken by pin interrupt
+	void sleep(byte pinToWakeOn, byte direction = FALLING, byte bPullup = true);		// full sleep woken by pin interrupt
 };
 
 extern LLAPSerial LLAP;
