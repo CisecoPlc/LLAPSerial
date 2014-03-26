@@ -57,13 +57,17 @@ void setup() // always called at the start to setup I/Os etc
   Serial.begin(115200); // start the serial port at 115200 baud
 
   byte i=0;
-  while (inputs[i]) {pinMode(inputs[i],INPUT); digitalWrite(inputs[i++],HIGH);}
+  while (inputs[i] != 254) {pinMode(inputs[i],INPUT); digitalWrite(inputs[i++],HIGH);}
   i=0;
-  while (outputs[i]) pinMode(outputs[i++],OUTPUT);
+  while (outputs[i] != 254) pinMode(outputs[i++],OUTPUT);
   myservo.attach(SERVOPIN);  // attaches the servo pin to the servo object 
 
   String permittedChars = "-#@?\\*ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  char deviceID[2] = {EEPROM.read(EEPROM_DEVICEID1), EEPROM.read(EEPROM_DEVICEID2)};
+  char deviceID[2];
+  deviceID[0] = EEPROM.read(EEPROM_DEVICEID1);
+  deviceID[1] = EEPROM.read(EEPROM_DEVICEID2);
+  
+
   if (permittedChars.indexOf(deviceID[0]) == -1 || permittedChars.indexOf(deviceID[1]) == -1)
   {
 	  deviceID[0] = DEVICEID1;
@@ -72,7 +76,7 @@ void setup() // always called at the start to setup I/Os etc
 
   LLAP.init(deviceID);
 
-  LLAP.sendMessage("STARTED");
+  LLAP.sendMessage(String("STARTED"));
 }
 
 void loop() // repeatedly called
