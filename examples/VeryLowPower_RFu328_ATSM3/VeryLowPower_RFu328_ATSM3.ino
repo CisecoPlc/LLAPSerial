@@ -120,7 +120,7 @@ uint8_t sendCommand(char* lpszCommand)
 
 uint8_t checkOK(int timeout)
 {
-  suint32_t time = millis();
+  uint32_t time = millis();
   while (millis() - time < timeout)
   {
     if (Serial.available() >= 3)
